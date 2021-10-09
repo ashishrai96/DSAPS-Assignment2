@@ -3,7 +3,6 @@
 template <typename T>
 class Deque
 {
-friend std::ostream &operator<<(std::ostream &os, const Deque<T> &deq);
 
 private:
     T *arr = nullptr;
@@ -269,24 +268,6 @@ T &Deque<T>::operator[](long long n){
     else{
         throw "Index out of bound!";
     }
-}
-
-template <typename T>
-std::ostream &operator<<(std::ostream &os, const Deque<T> &deq){
-    os << "=================================" << std::endl;
-    os << "length = " << deq.length << " | max_size = " << deq.max_size << std::endl;
-    os << "---------------------------------" << std::endl;
-    long long p {0};
-    while(p < deq.length){
-        os << deq.arr[((p+deq.f) % deq.max_size)] << " ";
-        p++;
-    }
-    // long long q {0};
-    // while(q < deq.length){
-    //     os << deq[q] << " ";
-    // }
-    os << std::endl << "=================================" << std::endl;
-    return os;
 }
 
 template <typename T>
