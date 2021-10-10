@@ -16,8 +16,7 @@ class UnorderedMap
 friend std::ostream &operator<<(std::ostream &os, const UnorderedMap<K,V> &umap);
 
 private:
-    // const long prime {7321};
-    const long prime {10};
+    const long prime = 7321;  //  Prime Number
     const long starting_char {32};  // For SPACE
     const long csize {90};  //  32-SPACE to 122-z (ASCII values)
     
@@ -76,7 +75,8 @@ void UnorderedMap<K,V>::insert(K key, V value) {
 
     long index = hasher(key_string);
 
-    Node<K,V> *p = arr[index];
+    Node<K,V> *p = nullptr;
+    p = arr[index];
     if(p != nullptr){
         while(p->key != key && p->next != nullptr){
             p = p->next;
@@ -194,12 +194,26 @@ V &UnorderedMap<K,V>::operator[](K key) {
         if(p && p->key == key){
             return p->value;
         }
+        else{
+            // Key doesn't exist in the chain
+            insert(key, {});
+            return operator[](key);
+        }
     }
-    throw "Invalid Key!";
+    else{
+        // Key doesn't exist
+        insert(key, {});   
+        return operator[](key);
+    }
 }
 
 template <typename K>
 std::vector<int> distinceElemInSubarray(size_t k, size_t n, K *array) {
+    if(k > n){
+        std::cout << "\nERROR: size of subarray is more that array size." << std::endl;
+        return {};
+    }
+
     std::vector<int> res{};
     UnorderedMap<K,int> um;
 
@@ -258,51 +272,102 @@ void UnorderedMap<K,V>::display() {
     std::cout << "-----------------------------------" << std::endl;
 }
 
+void displayMenu() {
+    std::cout << "\n" << std::endl;
+    std::cout << "-------------------------" << std::endl;
+    std::cout << "Press 0 for EXIT " << std::endl;
+    std::cout << "Press 1 for INSERT " << std::endl;
+    std::cout << "Press 2 for ERASE " << std::endl;
+    std::cout << "Press 3 for FIND " << std::endl;
+    std::cout << "Press 4 for KEY's VALUE" << std::endl;
+    std::cout << "Press 5 for DISTINCT ELEMENT COUNT" << std::endl;
+    std::cout << "Press 6 for DISPLAY" << std::endl;
+    std::cout << "Press 7 for CLEAR" << std::endl;
+    std::cout << "-------------------------" << std::endl;
+    std::cout << "\n" << std::endl;
+}
+
+
 int main() {
 
-    UnorderedMap<int,int> um;
-    size_t n;
-    std::cout << "Enter the size of an Array: ";
-    std::cin >> n;
-    
-    std::cout << "Enter the Array elements: ";
-    int array[] = { 1,2,1,3,4,2,3 };
-    for(size_t i{0}; i<n; i++){
-        std::cin >> array[i];
-    }
+    UnorderedMap<std::string, double> um;
+    std::string k;
+    double v;
 
-    size_t k;
-    std::cout << "Enter the size of subarray (k): ";
-    std::cin >> k;
+    int optn;
+    do{
+        displayMenu();
+        std::cout << "\nEnter menu option: ";
+        std::cin >> optn;
 
-    std::vector<int> vec {};
-    vec = distinceElemInSubarray(k, n,array);
-    for(auto &a : vec){
-        std::cout << a << " ";
-    }std::cout << std::endl;
+        switch (optn)
+        {
+            case 1:
+            {
+                std::cout << "\nEnter key-value pair: ";
+                std::cin >> k >> v;
+                um.insert(k,v);
+            }
+            break;
+            case 2:
+            {
+                std::cout << "\nEnter key to erase: ";
+                std::cin >> k;
+                um.erase(k);
+            }
+            break;
+            case 3:
+            {
+                std::cout << "\nEnter key to find: ";
+                std::cin >> k;
+                std::cout << "Does element exists? - " << (um.find(k)?"YES":"NO") << std::endl;
+            }
+            break;
+            case 4:
+                {
+                    std::cout << "\nEnter key to get the value: ";
+                    std::cin >> k;
+                    std::cout << "\n" << um[k] << std::endl;
+                }
+            break;
+            case 5:
+                {
+                    size_t n;
+                    std::cout << "\nEnter the size of an Array: ";
+                    std::cin >> n;
+                    
+                    std::cout << "Enter the Array elements: ";
+                    // Depends on Map Datatype.
+                    std::string array[n];
+                    for(size_t i{0}; i<n; i++){
+                        std::cin >> array[i];
+                    }
 
+                    size_t k;
+                    std::cout << "Enter the size of subarray (k): ";
+                    std::cin >> k;
 
-    // um.insert(1,10);
-    // um.insert(33,30);
-    // um.insert(22,20);
-    // um.insert(222,200);
-    // um.insert(11,100);
-    // um.insert(111,1000);
+                    std::vector<int> vec {};
+                    vec = distinceElemInSubarray(k, n,array);
+                    std::cout << "\nResult Set:" << std::endl;
+                    for(auto &a : vec){
+                        std::cout << a << " ";
+                    }std::cout << std::endl;
+                }
+            break;
+            case 6:
+                {
+                    um.display();
+                }
+            break;
+            case 7:
+                {
+                    um.clear();
+                    std::cout << "\nCleared!!" << std::endl;
+                }
+            break;
+        }
+    }while(optn != 0);
 
-    // um.display();
-
-    // um.insert(1,10000);
-
-    // um.display();
-
-    // std::cout << um.find(222) << std::endl;
-    // um.erase(222);
-    // std::cout << um.find(222) << std::endl;
-
-    // std::cout << um[33] << std::endl;
-
-    // um.display();
-
-    // um.display();
     return 0;
 }
