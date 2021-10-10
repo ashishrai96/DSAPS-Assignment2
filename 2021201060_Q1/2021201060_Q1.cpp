@@ -35,6 +35,7 @@ public:
     // Helper Fn
     Node<T> *getMinimunNode(Node<T> *node);
     int getBalanceFactor(Node<T> *node);
+
 };
 
 template <typename T>
@@ -110,9 +111,6 @@ Node<T>* AVLTree<T>::rightRotation(Node<T> *node) {
     return p;
 }
 
-
-
-
 template <typename T>
 Node<T> *AVLTree<T>::insertNode(Node<T> *root, Node<T> *node) {
     if(root == nullptr){
@@ -181,11 +179,12 @@ Node<T> *AVLTree<T>::deleteNode(Node<T> *root, T val) {
     }
     else{
         // Value matches
-        if(root->count > 1){
-            root->count--;
-            return root;
-        }
-        else if(root->left == nullptr){  // Either No children or right child
+        // if(root->count > 1){
+        //     root->count--;
+        //     return root;
+        // }
+        
+        if(root->left == nullptr){  // Either No children or right child
             Node<T> *tmp = root->right;
             delete root;
             return tmp;
@@ -198,6 +197,7 @@ Node<T> *AVLTree<T>::deleteNode(Node<T> *root, T val) {
         else{       // Both children exist
             Node<T> *tmp = getMinimunNode(root->right);
             root->val = tmp->val;
+            root->count = tmp->count;
             root->right = deleteNode(root->right, tmp->val);
             updateHeight(root);
             root->r_sub_count = (root->right != nullptr)? (root->right->l_sub_count + root->right->r_sub_count + root->right->count) : 0;
@@ -307,7 +307,7 @@ Node<T> *AVLTree<T>::closestValue(Node<T> *root, T val) {
         if(tmp < 0)
             tmp *= -1;
         
-        if(tmp < diff){
+        if(tmp < diff || (tmp == diff && p->val < q->val)){
             diff = tmp;
             q = p;
         }
@@ -345,12 +345,20 @@ Node<T> *AVLTree<T>::kthLargest(Node<T> *root, int k) {
 
 template <typename T>
 int AVLTree<T>::nodesInRange(Node<T> *root, T l, T u) {
-    long size = root->l_sub_count + root->r_sub_count + root->count;
-    Node<T> *p {root}, *q {root};
-    p = lowerBound(root, l);
-    q = lowerBound(root, u);
+    if(root == nullptr){
+        return 0;
+    }
 
-    return size - (p->l_sub_count) - (q->r_sub_count);
+    if(root->val >= l && root->val <= u){
+        return root->count + nodesInRange(root->left, l, u) + nodesInRange(root->right, l, u);
+    }
+
+    if(root->val < l){
+        return nodesInRange(root->right, l, u);
+    }
+    else{
+        return nodesInRange(root->left, l, u);
+    }
 }
 
 
@@ -374,8 +382,75 @@ void print2D(Node<T> *root, int space) {
     print2D(root->left, space);
 }
 
+
+/**
+ * Dummy Class for class evaluation
+ * operator to overload '<' & '-' (for closesnt range)
+*/
+
+/***************************    Dummy class - START    ************************/
+class Person
+{
+    friend bool operator<(const Person &p1, const Person &p2);
+    friend bool operator>(const Person &p1, const Person &p2);
+    friend bool operator<=(const Person &p1, const Person &p2);
+    friend bool operator>=(const Person &p1, const Person &p2);
+    friend bool operator==(const Person &p1, const Person &p2);
+
+    friend std::ostream &operator<<(std::ostream &os, const Person &p);
+    friend std::istream &operator>>(std::istream &is, const Person &p);
+private:
+    float height {0};
+public:
+    Person();
+    Person(int i) {
+        height = i;
+    }
+    ~Person() = default;
+    void setHeight(float ht) { height = ht; }
+};
+
+Person::Person() {}
+
+bool operator<(const Person &p1, const Person &p2) {
+    return p1.height < p2.height;
+}
+
+bool operator>(const Person &p1, const Person &p2) {
+    return p1.height > p2.height;
+}
+
+bool operator<=(const Person &p1, const Person &p2) {
+    return p1.height <= p2.height;
+}
+
+bool operator>=(const Person &p1, const Person &p2) {
+    return p1.height >= p2.height;
+}
+
+bool operator==(const Person &p1, const Person &p2) {
+    return p1.height == p2.height;
+}
+
+std::ostream &operator<<(std::ostream &os, const Person &p) {
+    os << "The person's height is " << p.height <<std::endl;
+    return os;
+}
+
+std::istream &operator>>(std::istream &is, Person &p) {
+    float ht;
+    is >> ht;
+    p.setHeight(ht);
+    return is;
+}
+
+/***************************    Dummy class - END    ************************/
+
+
 int main(){
-    AVLTree<int> avl;
+    AVLTree<double> avl;
+    double i, j;
+    Node<double> *p;
 
     int optn {0};
     do{
@@ -405,22 +480,17 @@ int main(){
 
             case 2:
             {
-                // std::cout << "Enter node to insert: ";
-                // int i;
-                // std::cin >> i;
-                int arr[] = { 30, 25, 20, 10, 40, 50, 60, 40 };
-                for(auto &i : arr){
-                    Node<int> *node = new Node<int>;
-                    node->val = i;
-                    avl.root = avl.insertNode(avl.root, node);
-                }
+                std::cout << "Enter node to insert: ";
+                std::cin >> i;
+                    p = new Node<double>;
+                    p->val = i;
+                    avl.root = avl.insertNode(avl.root, p);
             }
             break;
 
             case 3:
             {
                 std::cout << "Enter node to delete: ";
-                int i;
                 std::cin >> i;
                 avl.root = avl.deleteNode(avl.root, i);
             }
@@ -429,9 +499,8 @@ int main(){
             case 4:
             {
                 std::cout << "Enter node to search: ";
-                int i;
                 std::cin >> i;
-                Node<int> *p = avl.searchNode(avl.root, i);
+                p = avl.searchNode(avl.root, i);
                 if(p==nullptr){
                     std::cout << "\nDoes Not exist!" << std::endl;
                 }
@@ -450,9 +519,8 @@ int main(){
             case 5:
             {
                 std::cout << "Enter node to look for its occurrences: ";
-                int i;
                 std::cin >> i;
-                Node<int> *p = avl.searchNode(avl.root, i);
+                p = avl.searchNode(avl.root, i);
                 if(p==nullptr){
                     std::cout << "\nDoes Not exist!" << std::endl;
                 }
@@ -465,64 +533,43 @@ int main(){
 
             case 6:
             {
-                // std::cout << "Enter node to look for its lower bound: ";
-                // int i;
-                // std::cin >> i;
-                // Node<int> *p = avl.lowerBound(avl.root, i);
-                // if(p == nullptr)
-                //     std::cout << "\nLower Bound Does Not Exist" << std::endl;
-                // else
-                //     std::cout << "\nLower bound - Node - " << p->val << std::endl;
-                
-                Node<int> *p;
-                for(int i{0}; i<=60; i++){
-                    p = avl.lowerBound(avl.root, i);
-                    std::cout << "\nLower Bound of " << i << " => " << p->val;
-                }std::cout << std::endl;
+                std::cout << "Enter node to look for its lower bound: ";
+                std::cin >> i;
+                p = avl.lowerBound(avl.root, i);
+                if(p == nullptr)
+                    std::cout << "\nLower Bound Does Not Exist" << std::endl;
+                else
+                    std::cout << "\nLower bound - Node - " << p->val << std::endl;
             }
             break;
 
             case 7:
             {
                 std::cout << "Enter node to look for its Upper bound: ";
-                int i;
                 std::cin >> i;
-                Node<int> *p = avl.upperBound(avl.root, i);
+                p = avl.upperBound(avl.root, i);
                 if(p == nullptr)
                     std::cout << "\nUpper Bound Does Not Exist" << std::endl;
                 else
                     std::cout << "\nUpper bound - Node - " << p->val << std::endl;
-
-                // Node<int> *p;
-                // for(int i{0}; i<=60; i++){
-                //     p = avl.upperBound(avl.root, i);
-                //     std::cout << "\nUpper Bound of " << i << " => " << (p!=nullptr?p->val:'NOT EXISTS');
-                // }std::cout << std::endl;
             }
             break;
             
             case 8:
             {
-                // std::cout << "Enter node to look for its closest value: ";
-                // int i;
-                // std::cin >> i;
-                // Node<int> *p = avl.closestValue(avl.root, i);
-                // std::cout << "\nClosest value - Node - " << p->val << std::endl;
-
-                Node<int> *p;
-                for(int i{-10}; i<=70; i++){
-                    p = avl.closestValue(avl.root, i);
-                    std::cout << "\nClosest value for " << i << " => " << ((p!=nullptr)?std::to_string(p->val):"NOT EXISTS");
-                }std::cout << std::endl;
+                std::cout << "Enter node to look for its closest value: ";
+                std::cin >> i;
+                p = avl.closestValue(avl.root, i);
+                std::cout << "\nClosest value - Node - " << p->val << std::endl;
             }
             break;
             
             case 9:
             {
-                std::cout << "Enter node to look for its kth Largest: ";
                 int i;
+                std::cout << "Enter node to look for its kth Largest: ";
                 std::cin >> i;
-                Node<int> *p = avl.kthLargest(avl.root, i);
+                p = avl.kthLargest(avl.root, i);
                 if(p == nullptr)
                     std::cout << "\nDoesnot exist!!" << std::endl;
                 else
@@ -533,10 +580,9 @@ int main(){
             case 10:
             {
                 std::cout << "Enter range to look for #elements within: ";
-                int i, j;
                 std::cin >> i >> j;
-                int p = avl.nodesInRange(avl.root, i, j);
-                std::cout << "\nNumber of nodes - " << p << std::endl;
+                int count = avl.nodesInRange(avl.root, i,j);
+                std::cout << "\nNumber of nodes - " << count << std::endl;
             }
             break;
         }
