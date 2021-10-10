@@ -8,15 +8,11 @@ private:
     T *arr = nullptr;
     size_t length, max_size;
     long long f, r;
-    // const size_t init_size {2305843009213693951};
-    const size_t init_size {5};
+    const size_t init_size {7321};
 public:
     Deque();
     Deque(size_t n, T x);
-    ~Deque() {
-        if(arr != nullptr)
-            delete arr;
-    }
+    ~Deque() = default;
 
     void push_back(T x);
     void pop_back();
@@ -223,14 +219,6 @@ size_t Deque<T>::size() {
 template <typename T>
 void Deque<T>::resize(size_t x, T d) {
     if(max_size < x){
-        // T *p {arr};
-        // arr = new T[(x+x)];
-        // max_size = (x+x);
-
-        // for(size_t j{0}; j<length; j++){
-        //     arr[j] = p[(f+j) % max_size];
-        // }
-
         increase_twice_max_size(x);
 
         size_t j{length};
@@ -241,7 +229,6 @@ void Deque<T>::resize(size_t x, T d) {
 
         r = x-1;
         length = x;
-        // delete p;
     }
     else if(length < x){
         while(length != x){
@@ -280,10 +267,6 @@ void Deque<T>::display(){
         std::cout << arr[((p+f) % max_size)] << " ";
         p++;
     }
-    // long long q {0};
-    // while(q < deq.length){
-    //     std::cout << deq[q] << " ";
-    // }
     std::cout << std::endl << "---------------------------------" << std::endl;
 }
 
@@ -308,70 +291,78 @@ void displayMenu() {
 
 int main(){
 
-    Deque<int> deq;
+    Deque<std::string> deq;
+    std::string x;
 
     int optn{};
     bool cont {true};
-    int x;
+    
     do{
-        displayMenu();
-        std::cin >> optn;
-        switch (optn)
+        try
         {
-        case 1:
-            std::cout << "push back => ";
-            std::cin >> x;
-            deq.push_back(x);
-            break;
-        case 2:
-            std::cout << "push front => ";
-            std::cin >> x;
-            deq.push_front(x);
-            break;
-        case 3:
-            std::cout << "pop front => ";
-            deq.pop_front();
-            break;
-        case 4:
-            std::cout << "pop back => ";
-            deq.pop_back();
-            break;
-        case 5:
-            std::cout << "front elem => " << deq.front();
-            break;
-        case 6:
-            std::cout << "Back back => " << deq.back();
-            break;
-        case 7:
-            std::cout << "Is empty => " << deq.empty();
-            break;
-        case 8:
-            std::cout << "Deque Size => " << deq.size();
-            break;
-        case 9:
-            deq.clear();
-            std::cout << "Deque Cleared" << std::endl;
-            break;
-        case 10:
-            long long s;   
-            std::cout << "Enter New size => ";
-            std::cin >> s;
-            deq.resize(s,0);
-            break;            
-        case 11:
-            long long n;
-            std::cout << "Enter index => ";
-            std::cin >> n;
-            std::cout << deq[n] << std::endl;
-            break;
-        case 12:
-            std::cout << "\n" << std::endl;
-            deq.display();
-            std::cout << "\n" << std::endl;
-            break;
-        default:
-            cont = false;
-            break;
+            displayMenu();
+            std::cin >> optn;
+            switch (optn)
+            {
+            case 1:
+                std::cout << "push back => ";
+                std::cin >> x;
+                deq.push_back(x);
+                break;
+            case 2:
+                std::cout << "push front => ";
+                std::cin >> x;
+                deq.push_front(x);
+                break;
+            case 3:
+                std::cout << "pop front => ";
+                deq.pop_front();
+                break;
+            case 4:
+                std::cout << "pop back => ";
+                deq.pop_back();
+                break;
+            case 5:
+                std::cout << "front elem => " << deq.front();
+                break;
+            case 6:
+                std::cout << "Back back => " << deq.back();
+                break;
+            case 7:
+                std::cout << "Is empty => " << deq.empty();
+                break;
+            case 8:
+                std::cout << "Deque Size => " << deq.size();
+                break;
+            case 9:
+                deq.clear();
+                std::cout << "Deque Cleared" << std::endl;
+                break;
+            case 10:
+                long long s;   
+                std::cout << "Enter New size => ";
+                std::cin >> s;
+                deq.resize(s,{});
+                break;            
+            case 11:
+                long long n;
+                std::cout << "Enter index => ";
+                std::cin >> n;
+                std::cout << deq[n] << std::endl;
+                break;
+            case 12:
+                std::cout << "\n" << std::endl;
+                deq.display();
+                std::cout << "\n" << std::endl;
+                break;
+            default:
+                cont = false;
+                break;
+            }
+        }
+        catch(const char *e)
+        {
+            std::cerr << "\n" << e << '\n';
         }
     }while(cont);
 
